@@ -1,6 +1,7 @@
 import qrcode
 
-url = "https://www.archerobotics.com/"
+url = "https://qr-projem.onrender.com/track"
+
 
 img = qrcode.make(url)
 
