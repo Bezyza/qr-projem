@@ -1,39 +1,46 @@
-# app.py
 from flask import Flask, request, redirect
 import requests
 from datetime import datetime
 
 app = Flask(__name__)
 
-# 1️⃣ Buraya kendi webhook.site adresini yapıştır:
 LOGGING_URL = "https://webhook.site/31748e81-93df-4027-a93c-ff319b576fb2"
 
-# 2️⃣ Ziyaret sonrası yönleneceği site:
-FINAL_URL = "https://www.archerobotics.com/"
+FINAL_URL_TEKNOSA = "https://www.teknosa.com/teknoclub"
+FINAL_URL_MM = "https://www.mediamarkt.com.tr/tr/myaccount/loyalty-benefits"
 
-@app.route("/track")
-def track():
-    # Kullanıcı bilgilerini al
-    ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+
+def send_log(qr_name):
+    ip = request.headers.get("X-Forwarded-For", request.remote_addr)
     user_agent = request.headers.get("User-Agent", "<bilinmiyor>")
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    # Gönderilecek veri
     data = {
+        "qr_name": qr_name,    
         "ip": ip,
         "user_agent": user_agent,
         "timestamp": timestamp
     }
 
-    # Log sitesine POST isteği gönder
     try:
         requests.post(LOGGING_URL, json=data, timeout=3)
         print("Log gönderildi:", data)
-    except Exception as e:
-        print("Log gönderilemedi:", e)
+    except:
+        print("Log gönderilemedi")
 
-    # Son olarak kullanıcıyı asıl siteye yönlendir
-    return redirect(FINAL_URL)
+
+@app.route("/track_teknosa")
+def track_teknosa():
+    send_log("teknosa")       
+    return redirect(FINAL_URL_TEKNOSA)
+
+
+@app.route("/track_mm")
+def track_mm():
+    send_log("mediamarkt")     
+    return redirect(FINAL_URL_MM)
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
